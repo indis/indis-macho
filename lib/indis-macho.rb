@@ -16,10 +16,10 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ##############################################################################
 
-require 'indis-core/binary_format'
-require 'indis-core/segment'
-require 'indis-core/section'
-require 'indis-core/symbol'
+require 'indis/binary_format'
+require 'indis/segment'
+require 'indis/section'
+require 'indis/symbol'
 require 'indis-macho/version'
 require 'indis-macho/command'
 require 'indis-macho/symbol'
