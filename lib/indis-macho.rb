@@ -17,6 +17,9 @@
 ##############################################################################
 
 require 'indis-core/binary_format'
+require 'indis-core/segment'
+require 'indis-core/section'
+require 'indis-core/symbol'
 require 'indis-macho/version'
 require 'indis-macho/command'
 require 'indis-macho/symbol'
