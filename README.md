@@ -2,5 +2,4 @@
 
 # Indis::MachO
 
-This gem provides support for processing mach-o binaries in th indis framework.
-
+This gem provides support for processing mach-o binaries in the indis framework.
