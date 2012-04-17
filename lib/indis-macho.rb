@@ -145,6 +145,7 @@ module Indis
           begin
             c = Indis::MachO::Command.class_of_command(cmd).new(cmd, size, @io)
             @commands << c
+            @target.publish_event(:macho_command_processed, c)
           rescue Indis::MachO::UnknownCommandError
             print "Unknown command #{cmd} size #{size}, skipping\n"
             @io.read(size-8)
@@ -173,11 +174,13 @@ module Indis
           @target.io.pos = cmd.fileoff
           seg = Indis::Segment.new(@target, name, cmd.vmaddr, cmd.vmsize, cmd.fileoff, @target.io.read(cmd.filesize))
           @target.segments << seg
+          @target.publish_event(:target_segment_processed, seg)
           
           cmd.sections.each do |sec|
             sec.index = @indexed_sections.length
             s = Indis::Section.new(seg, sec.sectname, sec.addr, sec.size, sec.offset, sec.type, sec.attributes)
             seg.sections << s
+            @target.publish_event(:target_section_processed, s)
             @indexed_sections << s
           end
         end
@@ -216,6 +219,7 @@ module Indis
           
           s = Indis::Symbol.new(sym.name, sec, dy, sym.value, sym)
           @target.symbols[sym.name] = s
+          @target.publish_event(:target_symbol_processed, s)
         end
       end
     end

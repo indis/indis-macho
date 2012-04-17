@@ -18,6 +18,7 @@ def macho_target_double(*args)
   end
   target.stub(:vamap=)
   target.stub(:io).and_return(o[:io])
+  target.stub(:publish_event)
   target
 end
 
@@ -107,5 +108,17 @@ describe Indis::BinaryFormat::MachO do
     dysymtab.bind_symbols.length.should == 20
     dysymtab.weak_bind_symbols.should be_nil
     dysymtab.lazy_bind_symbols.length.should == 10
+  end
+  
+  it "should post events while parsing" do
+    io = StringIO.new(File.open('spec/fixtures/app-arm-release.o', 'rb').read().force_encoding('BINARY'))
+    target = macho_target_double(io: io)
+    
+    target.should_receive(:publish_event).with(:macho_command_processed, anything).exactly(20).times
+    target.should_receive(:publish_event).with(:target_segment_processed, anything).exactly(4).times
+    target.should_receive(:publish_event).with(:target_section_processed, anything).exactly(22).times
+    target.should_receive(:publish_event).with(:target_symbol_processed, anything).exactly(133).times
+    
+    m = Indis::BinaryFormat::MachO.new(target, io)
   end
 end
