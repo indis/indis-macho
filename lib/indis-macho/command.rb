@@ -234,6 +234,16 @@ module Indis
       f_uint32 :ilocalsym, :nlocalsym, :iextdefsym, :nextdefsym, :iundefsym, :nundefsym, :tocoff,
                :ntoc, :modtaboff, :nmodtab, :extrefsymoff, :nextrefsyms, :indirectsymoff, :nindirectsyms,
                :extreloff, :nextrel, :locreloff, :nlocrel
+      attr_reader :indirect_symbols
+      
+      def process(payload)
+        super(payload)
+        
+        ofs = payload.pos
+        payload.pos = @indirectsymoff
+        @indirect_symbols = payload.read(@nindirectsyms * 4).unpack('V*')
+        payload.pos = ofs
+      end
     end
     
     class LoadDyLinkerCommand < Command # LC_LOAD_DYLINKER

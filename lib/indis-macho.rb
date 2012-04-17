@@ -105,6 +105,7 @@ module Indis
         build_segments
         build_dylibs if self.flags.include? :MH_TWOLEVEL
         build_symbols
+        build_indirect_symbols
       end
       
       def flags
@@ -113,6 +114,26 @@ module Indis
           f << v if @flags_val & k == k
         end
         f
+      end
+      
+      def resolve_symbol_at_address(vmaddr)
+        segcommands = @commands.map{ |c| c if c.is_a?(Indis::MachO::SegmentCommand) }.compact
+        seg = segcommands.find { |seg| vmaddr >= seg.vmaddr && vmaddr < seg.vmaddr+seg.vmsize }
+        return nil unless seg
+        
+        ok_types = [:S_NON_LAZY_SYMBOL_POINTERS, :S_LAZY_SYMBOL_POINTERS, :S_LAZY_DYLIB_SYMBOL_POINTERS,
+                    :S_THREAD_LOCAL_VARIABLE_POINTERS, :S_SYMBOL_STUBS]
+        sect = seg.sections.find { |sec| vmaddr >= sec.addr && vmaddr < sec.addr+sec.size && ok_types.include?(sec.type) }
+        return nil unless sect
+        
+        stride = sect.type == :S_SYMBOL_STUBS ? sect.reserved2 : 4 # cctools/otool/ofile_print.c:8105
+        index = sect.reserved1 + (vmaddr - sect.addr) / stride
+        
+        return nil if index >= @indirect_symbols.length
+        
+        symb = @symbols[@indirect_symbols[index]].name
+        @target.publish_event(:macho_indirect_symbol_resolved, vmaddr, symb)
+        symb
       end
       
       private
@@ -224,6 +245,13 @@ module Indis
           @target.symbols << s
           @target.publish_event(:target_symbol_processed, s)
         end
+      end
+      
+      def build_indirect_symbols
+        dysymtabcommand = @commands.find{ |c| c.is_a?(Indis::MachO::DySymTabCommand) }
+        return if !dysymtabcommand || dysymtabcommand.length == 0
+        
+        @indirect_symbols = dysymtabcommand.indirect_symbols
       end
     end
     
