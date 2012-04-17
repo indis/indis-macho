@@ -143,9 +143,51 @@ module Indis
       f_string :segname, 16
       f_uint32 :addr, :size, :offset, :align, :reloff, :nreloc, :flags, :reserved1, :reserved2
       attr_accessor :index
+      attr_reader :type, :attributes
+      
+      SECTION_TYPE_MASK = 0x000000ff
+      SECTION_ATTRIBUTES_MASK = 0xffffff00
+      
+      SECTION_TYPE = {
+        0x00 => :S_REGULAR,                             # regular section
+        0x01 => :S_ZEROFILL,                            # zero-fill on demand section
+        0x02 => :S_CSTRING_LITERALS,                    # section with only literal C strings
+        0x03 => :S_4BYTE_LITERALS,                      # section with only 4 byte literals
+        0x04 => :S_8BYTE_LITERALS,                      # section with only 8 byte literals
+        0x05 => :S_LITERAL_POINTERS,                    # section with only pointers to literals
+        0x06 => :S_NON_LAZY_SYMBOL_POINTERS,            # section with only non-lazy symbol pointers
+        0x07 => :S_LAZY_SYMBOL_POINTERS,                # section with only lazy symbol pointers
+        0x08 => :S_SYMBOL_STUBS,                        # section with only symbol stubs (s.a. byte size of stub in the reserved2)
+        0x09 => :S_MOD_INIT_FUNC_POINTERS,              # section with only function pointers for initialization
+        0x0a => :S_MOD_TERM_FUNC_POINTERS,              # section with only function pointers for termination
+        0x0b => :S_COALESCED,                           # section contains symbols that are to be coalesced
+        0x0c => :S_GB_ZEROFILL,                         # zero fill on demand section (>4Gb)
+        0x0d => :S_INTERPOSING,                         # section with only pairs of function pointers for interposing
+        0x0e => :S_16BYTE_LITERALS,                     # section with only 16 byte literals
+        0x0f => :S_DTRACE_DOF,                          # section contains DTrace Object Format
+        0x10 => :S_LAZY_DYLIB_SYMBOL_POINTERS,          # section with only lazy symbol pointers to lazy loaded dylibs
+        0x11 => :S_THREAD_LOCAL_REGULAR,                # template of initial values for TLVs
+        0x12 => :S_THREAD_LOCAL_ZEROFILL,               # template of initial values for TLVs (zero-filled on demand?)
+        0x13 => :S_THREAD_LOCAL_VARIABLES,              # TLV descriptors
+        0x14 => :S_THREAD_LOCAL_VARIABLE_POINTERS,      # pointers to TLV descriptors
+        0x15 => :S_THREAD_LOCAL_INIT_FUNCTION_POINTERS, # functions to call to initialize TLV values
+      }
+      
+      SECTION_ATTRIBUTES = {
+        0x80000000 => :S_ATTR_PURE_INSTRUCTIONS,   # section contains only true machine instructions
+        0x40000000 => :S_ATTR_NO_TOC,              # section contains coalesced symbols that are not to be in a ranlib table of contents
+        0x20000000 => :S_ATTR_STRIP_STATIC_SYMS,   # ok to strip static symbols in this section in files with the MH_DYLDLINK flag
+        0x10000000 => :S_ATTR_NO_DEAD_STRIP,       # no dead stripping
+        0x08000000 => :S_ATTR_LIVE_SUPPORT,        # blocks are live if they reference live blocks
+        0x04000000 => :S_ATTR_SELF_MODIFYING_CODE, # Used with i386 code stubs written on by dyld
+        # s.a. S_ATTR_DEBUG & friends in loader.h
+      }
       
       def initialize(payload)
         process(payload)
+        @type = SECTION_TYPE[@flags & SECTION_TYPE_MASK]
+        atr = @falgs & SECTION_ATTRIBUTES_MASK
+        @attributes = SECTION_ATTRIBUTES.map { |k,v| (atr & k == k) ? v : nil }.compact
       end
     end
     

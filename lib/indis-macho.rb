@@ -176,7 +176,7 @@ module Indis
           
           cmd.sections.each do |sec|
             sec.index = @indexed_sections.length
-            s = Indis::Section.new(seg, sec.sectname, sec.addr, sec.size, sec.offset)
+            s = Indis::Section.new(seg, sec.sectname, sec.addr, sec.size, sec.offset, sec.type, sec.attributes)
             seg.sections << s
             @indexed_sections << s
           end
