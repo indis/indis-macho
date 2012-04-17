@@ -32,35 +32,35 @@ module Indis
         0xa => :INDR,
       }
       STAB = {
-        0x20 => :N_GSYM,
-        0x22 => :N_FNAME,
-        0x24 => :N_FUN,
-        0x26 => :N_STSYM,
-        0x28 => :N_LCSYM,
-        0x2e => :N_BNSYM,
-        0x3c => :N_OPT,
-        0x40 => :N_RSYM,
-        0x44 => :N_SLINE,
-        0x4e => :N_ENSYM,
-        0x60 => :N_SSYM,
-        0x64 => :N_SO,
-        0x66 => :N_OSO,
-        0x80 => :N_LSYM,
-        0x82 => :N_BINCL,
-        0x84 => :N_SOL,
-        0x86 => :N_PARAMS,
-        0x88 => :N_VERSION,
-        0x8A => :N_OLEVEL,
-        0xa0 => :N_PSYM,
-        0xa2 => :N_EINCL,
-        0xa4 => :N_ENTRY,
-        0xc0 => :N_LBRAC,
-        0xc2 => :N_EXCL,
-        0xe0 => :N_RBRAC,
-        0xe2 => :N_BCOMM,
-        0xe4 => :N_ECOMM,
-        0xe8 => :N_ECOML,
-        0xfe => :N_LENG,
+        0x20 => :N_GSYM,    # global symbol
+        0x22 => :N_FNAME,   # procedure name (f77 kludge)
+        0x24 => :N_FUN,     # procedure name
+        0x26 => :N_STSYM,   # static symbol
+        0x28 => :N_LCSYM,   # .lcomm symbol
+        0x2e => :N_BNSYM,   # begin nsect symbol
+        0x3c => :N_OPT,     # emitted with gcc2_compiled and in gcc source
+        0x40 => :N_RSYM,    # register symbol
+        0x44 => :N_SLINE,   # src line
+        0x4e => :N_ENSYM,   # end nsect symbol
+        0x60 => :N_SSYM,    # structure elt
+        0x64 => :N_SO,      # source file name
+        0x66 => :N_OSO,     # object file name
+        0x80 => :N_LSYM,    # local symbol
+        0x82 => :N_BINCL,   # include file beginning
+        0x84 => :N_SOL,     # #included file name
+        0x86 => :N_PARAMS,  # compiler parameters
+        0x88 => :N_VERSION, # compiler version
+        0x8A => :N_OLEVEL,  # compiler -O level
+        0xa0 => :N_PSYM,    # parameter
+        0xa2 => :N_EINCL,   # include file end
+        0xa4 => :N_ENTRY,   # alternate entry
+        0xc0 => :N_LBRAC,   # left bracket
+        0xc2 => :N_EXCL,    # deleted include file
+        0xe0 => :N_RBRAC,   # right bracket
+        0xe2 => :N_BCOMM,   # begin common
+        0xe4 => :N_ECOMM,   # end common
+        0xe8 => :N_ECOML,   # end common (local name)
+        0xfe => :N_LENG,    # second stab entry with length information
       }
       REFERENCE_TYPE_MASK = 0xf
       DESC_REFERENCE = {
@@ -94,7 +94,11 @@ module Indis
           @name = strtab[name_idx..-1].split("\0", 2)[0]
         end
         
-        #puts "#{printf('%08x', value)} #{@name} sect #{@sect} #{self.type ? self.type : 'UNK 0b'+@type_val.to_s(2)} #{self.stab? ? 'stab ' : ''} #{self.private_extern? ? 'pvt ' : ''} #{self.extern? ? 'extern' : ''}"
+        # if stab?
+        #   puts ".stabs \"#{@name}\", #{STAB[@type_val]}, #{@sect}, #{self.desc}, #{@value}"
+        # else
+        #   puts "SYM \"#{@name}\", #{TYPE[@type_val & TYPE_MASK]}, #{@sect}, #{self.desc}, #{@value}"
+        # end
       end
       
       def type
