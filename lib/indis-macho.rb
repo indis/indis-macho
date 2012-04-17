@@ -204,6 +204,8 @@ module Indis
         
         cmd = symtabcommand.first
         cmd.symbols.each do |sym|
+          next if sym.stab? || sym.type != :SECT # we map only SECT symbols
+          
           sec = if sym.sect > 0
             @indexed_sections[sym.sect]
           else
