@@ -140,7 +140,7 @@ module Indis
     class SectionSubCommand < Command # LC_SEGMENT.sub
       f_string :sectname, 16
       f_string :segname, 16
-      f_uint32 :addr, :size, :offset, :align, :reloff, :nreloc, :flags, :reserved1, :reseved2
+      f_uint32 :addr, :size, :offset, :align, :reloff, :nreloc, :flags, :reserved1, :reserved2
       attr_accessor :index
       
       def initialize(payload)
