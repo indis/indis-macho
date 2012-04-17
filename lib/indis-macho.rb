@@ -200,7 +200,7 @@ module Indis
         symtabcommand = @commands.map{ |c| c if c.is_a?(Indis::MachO::SymTabCommand) }.compact
         return if symtabcommand.length == 0
         
-        @target.symbols = {}
+        @target.symbols = []
         
         cmd = symtabcommand.first
         cmd.symbols.each do |sym|
@@ -218,7 +218,7 @@ module Indis
           end
           
           s = Indis::Symbol.new(sym.name, sec, dy, sym.value, sym)
-          @target.symbols[sym.name] = s
+          @target.symbols << s
           @target.publish_event(:target_symbol_processed, s)
         end
       end

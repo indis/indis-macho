@@ -14,7 +14,7 @@ def macho_target_double(*args)
   if o[:symbols]
     target.should_receive(:symbols){ o[:symbols] }.any_number_of_times
   else
-    target.should_receive(:symbols).any_number_of_times.and_return({})
+    target.should_receive(:symbols).any_number_of_times.and_return([])
   end
   target.stub(:vamap=)
   target.stub(:io).and_return(o[:io])
@@ -88,15 +88,15 @@ describe Indis::BinaryFormat::MachO do
   end
   
   it "should parse symbols" do
-    sym = {}
+    sym = []
     io = StringIO.new(File.open('spec/fixtures/single-object.o', 'rb').read().force_encoding('BINARY'))
     target = macho_target_double(io: io, symbols: sym)
     
     m = Indis::BinaryFormat::MachO.new(target, io)
     
-    sym.keys.should include("_add")
-    sym.keys.should include("_sub")
-    sym.keys.should include("_printf")
+    sym.find {|s| s.name == '_add' }.should be_a(Indis::Symbol)
+    sym.find {|s| s.name == '_sub' }.should be_a(Indis::Symbol)
+    sym.find {|s| s.name == '_printf' }.should be_a(Indis::Symbol)
   end
   
   it "should parse dyld operands" do
