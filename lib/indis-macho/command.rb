@@ -17,6 +17,7 @@
 ##############################################################################
 
 require 'indis-macho/symbol'
+require 'indis-macho/dyld_info_parser'
 
 module Indis
   module MachO
@@ -265,6 +266,30 @@ module Indis
     class DyldInfoOnlyCommand < Command # LC_DYLD_INFO_ONLY
       f_uint32 :rebase_off, :rebase_size, :bind_off, :bind_size, :weak_bind_off, :weak_bind_size,
                :lazy_bind_off, :lazy_bind_size, :export_off, :export_size
+      attr_reader :bind_symbols, :weak_bind_symbols, :lazy_bind_symbols
+     
+      def process(payload)
+        super(payload)
+        
+        # TODO: rebase
+        
+        off = payload.pos
+        payload.pos = @bind_off
+        bind = payload.read(@bind_size)
+        @bind_symbols = DyldInfoParser.new(bind).parse if @bind_size > 0
+        
+        payload.pos = @weak_bind_off
+        weak_bind = payload.read(@weak_bind_size)
+        @weak_bind_symbols = DyldInfoParser.new(weak_bind).parse if @weak_bind_size > 0
+        
+        payload.pos = @lazy_bind_off
+        lazy_bind = payload.read(@lazy_bind_size)
+        @lazy_bind_symbols = DyldInfoParser.new(lazy_bind).parse if @lazy_bind_size > 0
+        
+        # TODO: export
+        
+        payload.pos = off
+      end
     end
   
   end

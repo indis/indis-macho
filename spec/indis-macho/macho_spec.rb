@@ -97,4 +97,15 @@ describe Indis::BinaryFormat::MachO do
     sym.keys.should include("_sub")
     sym.keys.should include("_printf")
   end
+  
+  it "should parse dyld operands" do
+    io = StringIO.new(File.open('spec/fixtures/app-arm-release.o', 'rb').read().force_encoding('BINARY'))
+    target = macho_target_double(io: io)
+    
+    m = Indis::BinaryFormat::MachO.new(target, io)
+    dysymtab = m.commands.map{ |c| c if c.is_a?(Indis::MachO::DyldInfoOnlyCommand) }.compact.first
+    dysymtab.bind_symbols.length.should == 20
+    dysymtab.weak_bind_symbols.should be_nil
+    dysymtab.lazy_bind_symbols.length.should == 10
+  end
 end
