@@ -197,13 +197,14 @@ module Indis
       end
       
       def build_symbols
-        symtabcommand = @commands.map{ |c| c if c.is_a?(Indis::MachO::SymTabCommand) }.compact
+        symtabcommand = @commands.find{ |c| c.is_a?(Indis::MachO::SymTabCommand) }
         return if symtabcommand.length == 0
+        
+        @symbols = symtabcommand.symbols
         
         @target.symbols = []
         
-        cmd = symtabcommand.first
-        cmd.symbols.each do |sym|
+        symtabcommand.symbols.each do |sym|
           next if sym.stab? || sym.type != :SECT # we map only SECT symbols
           
           sec = if sym.sect > 0
