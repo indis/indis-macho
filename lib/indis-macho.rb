@@ -228,22 +228,15 @@ module Indis
         symtabcommand.symbols.each do |sym|
           next if sym.stab?
           
-          sec = if sym.sect > 0
-            @indexed_sections[sym.sect]
-          else
-            nil
-          end
+          sym.section = @indexed_sections[sym.macho_section_index] if sym.macho_section_index > 0
           
-          dy = if self.flags.include? :MH_TWOLEVEL
+          sym.image = if self.flags.include? :MH_TWOLEVEL
             l2 = sym.twolevel_library_ordinal
-            @indexed_dylibs[l2] if l2.is_a? Fixnum
-          else
-            nil
+            @indexed_dylibs[l2] if l2.is_a?(Fixnum)
           end
           
-          s = Indis::Symbol.new(sym.name, sec, dy, sym.value, sym)
-          @target.symbols << s
-          @target.publish_event(:target_symbol_processed, s)
+          @target.symbols << sym
+          @target.publish_event(:target_symbol_processed, sym)
         end
       end
       

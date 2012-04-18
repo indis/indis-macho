@@ -16,10 +16,12 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ##############################################################################
 
+require 'indis-core/symbol'
+
 module Indis
   module MachO
     
-    class Symbol
+    class Symbol < Indis::Symbol
       STAB_MASK = 0xe0
       PEXT_MASK = 0x10
       TYPE_MASK = 0x0e
@@ -84,21 +86,18 @@ module Indis
         0xff => :EXECUTABLE_ORDINAL,
       }
       
-      attr_reader :name, :sect, :value
+      attr_writer :image, :section, :image # image will be set later on by macho parser
+      attr_reader :macho_section_index
       
       def initialize(payload, strtab)
-        name_idx, @type_val, @sect, @desc_val, @value = payload.read(12).unpack('VCCSV')
+        name_idx, @type_val, @macho_section_index, @desc_val, @value = payload.read(12).unpack('VCCSV')
         if name_idx == 0
           @name = ''
         else
           @name = strtab[name_idx..-1].split("\0", 2)[0]
         end
         
-        # if stab?
-        #   puts ".stabs \"#{@name}\", #{STAB[@type_val]}, #{@sect}, #{self.desc}, #{@value}"
-        # else
-        #   puts "SYM \"#{@name}\", #{TYPE[@type_val & TYPE_MASK]}, #{@sect}, #{self.desc}, #{@value}"
-        # end
+        super(@name, nil, nil, @value)
       end
       
       def type
