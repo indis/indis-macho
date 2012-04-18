@@ -117,7 +117,7 @@ describe Indis::BinaryFormat::MachO do
     target.should_receive(:publish_event).with(:macho_command_processed, anything).exactly(20).times
     target.should_receive(:publish_event).with(:target_segment_processed, anything).exactly(4).times
     target.should_receive(:publish_event).with(:target_section_processed, anything).exactly(22).times
-    target.should_receive(:publish_event).with(:target_symbol_processed, anything).exactly(133).times
+    target.should_receive(:publish_event).with(:target_symbol_processed, anything).exactly(51).times
     
     m = Indis::BinaryFormat::MachO.new(target, io)
   end
