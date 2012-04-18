@@ -17,5 +17,5 @@ Gem::Specification.new do |gem|
   gem.version       = Indis::MachO::VERSION
   
   gem.add_development_dependency 'rspec'
-  gem.add_runtime_dependency 'indis-core'
+  gem.add_runtime_dependency 'indis-core', '~> 0.1.2'
 end
