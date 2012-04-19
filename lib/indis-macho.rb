@@ -16,6 +16,7 @@
 #   along with this program.  If not, see <http://www.gnu.org/licenses/>.    #
 ##############################################################################
 
+require 'indis-core/binary_architecture'
 require 'indis-core/binary_format'
 require 'indis-core/segment'
 require 'indis-core/section'
@@ -29,6 +30,10 @@ module Indis
     
     class MachO < Format
       MH_MAGIC = 0xfeedface
+      
+      CPUARCH = {
+        :CPU_TYPE_ARM => :arm,
+      }
       
       CPUTYPE = {
         12 => :CPU_TYPE_ARM
@@ -84,7 +89,7 @@ module Indis
         0x1000000 => :MH_NO_HEAP_EXECUTION,
       }
       
-      attr_reader :cputype, :cpusubtype, :filetype, :commands
+      attr_reader :cputype, :cpusubtype, :filetype, :commands, :architecture
       
       def self.magic
         MH_MAGIC
@@ -158,6 +163,8 @@ module Indis
 
         @filetype = FILETYPE[@filetype]
         raise "Unknown file type" unless @filetype
+
+        @architecture = CPUARCH[@cputype]
       end
       
       def parse_commands
