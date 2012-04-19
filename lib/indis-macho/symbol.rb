@@ -86,7 +86,7 @@ module Indis
         0xff => :EXECUTABLE_ORDINAL,
       }
       
-      attr_writer :image, :section, :image # image will be set later on by macho parser
+      attr_writer :image, :section, :image, :vmaddr # image will be set later on by macho parser
       attr_reader :macho_section_index
       
       def initialize(payload, strtab)

@@ -131,7 +131,8 @@ module Indis
         
         return nil if index >= @indirect_symbols.length
         
-        symb = @symbols[@indirect_symbols[index]].name
+        symb = @symbols[@indirect_symbols[index]]
+        symb.vmaddr = vmaddr
         @target.publish_event(:macho_indirect_symbol_resolved, vmaddr, symb)
         symb
       end
