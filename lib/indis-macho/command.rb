@@ -85,6 +85,8 @@ module Indis
         LC_CODE_SIGNATURE: :CodeSignatureCommand,
         LC_VERSION_MIN_IPHONEOS: :VersionMinIPhoneOSCommand,
         LC_FUNCTION_STARTS: :FunctionStartsCommand,
+        LC_ID_DYLIB: :DylibCommand,
+        LC_SEGMENT_SPLIT_INFO: :LinkEditCommand,
       }
   
       attr_reader :cmd, :length
@@ -342,6 +344,22 @@ module Indis
         
         payload.pos = off
       end
+    end
+    
+    class DylibCommand < Command # LC_ID_DYLIB
+      f_uint32 :name_offset, :timestamp, :current_version, :compatibility_version
+      attr_reader :name
+      
+      def process(payload)
+        super(payload)
+        
+        name_sz = @length - @name_offset - 4*3 + 8 + 4
+        @name = payload.read(name_sz).strip
+      end
+    end
+    
+    class LinkEditCommand < Command # LC_SEGMENT_SPLIT_INFO (same as LC_FUNCTION_STARTS, LC_CODE_SIGNATURE, refactor?)
+      f_uint32 :dataoff, :datasize
     end
   
   end
