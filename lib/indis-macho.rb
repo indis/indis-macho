@@ -25,6 +25,9 @@ require 'indis-macho/version'
 require 'indis-macho/command'
 require 'indis-macho/symbol'
 
+require 'indis-macho/analyzers/strings_section_analyzer'
+require 'indis-macho/analyzers/pvars_section_analyzer'
+
 module Indis
   module BinaryFormat
     
