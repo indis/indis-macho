@@ -99,6 +99,11 @@ module Indis
               syms << sym.dup
               sym[:offset] += skip + 4
             end
+          when :BIND_OPCODE_DO_BIND_ADD_ADDR_ULEB
+            syms << sym.dup
+            sym[:offset] += 4 + pop_uleb
+          when :BIND_OPCODE_SET_DYLIB_ORDINAL_ULEB
+            sym[:library] = pop_uleb
           else
             raise "unknown opcode #{opcode} #{(b & BIND_OPCODE_MASK).to_s 16}"
           end
