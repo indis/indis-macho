@@ -91,10 +91,18 @@ module Indis
       
       def initialize(payload, strtab)
         name_idx, @type_val, @macho_section_index, @desc_val, @value = payload.read(12).unpack('VCCSV')
-        if name_idx == 0
-          @name = ''
-        else
-          @name = strtab[name_idx..-1].split("\0", 2)[0]
+        
+        @name = ''
+        unless name_idx == 0
+          strtab.pos = name_idx
+          subn = strtab.read(256)
+          idx = subn.index("\0")
+          while idx == nil
+            @name += subn
+            subn = strtab.read(256)
+            idx = subn.index("\0")
+          end
+          @name += subn[0...idx]
         end
         
         super(@name, nil, nil, @value)

@@ -219,7 +219,7 @@ module Indis
         pos = payload.pos
         
         payload.pos = @stroff
-        strings = payload.read(@strsize)
+        strings = StringIO.new(payload.read(@strsize))
         
         payload.pos = @symoff
         @symbols = []
