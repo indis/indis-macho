@@ -117,11 +117,13 @@ module Indis
       end
       
       def flags
-        f = []
-        FLAGS.each_pair do |k, v|
-          f << v if @flags_val & k == k
+        unless @flags
+          @flags = []
+          FLAGS.each_pair do |k, v|
+            @flags << v if @flags_val & k == k
+          end
         end
-        f
+        @flags
       end
       
       def resolve_symbol_at_address(vmaddr)
