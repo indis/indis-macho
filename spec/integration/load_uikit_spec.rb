@@ -24,7 +24,7 @@ def macho_target_double(*args)
   target
 end
 
-describe Indis::BinaryFormat::MachO do
+describe Indis::BinaryFormat::MachO, :requires_osx => true do
   it "should parse mach-o header" do
     io = StringIO.new(File.open($UiKit, 'rb').read().force_encoding('BINARY'))
     target = macho_target_double(io: io)
